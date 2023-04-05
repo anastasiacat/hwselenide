@@ -1,8 +1,12 @@
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import static com.codeborne.selenide.Selenide.*;
@@ -22,7 +26,8 @@ public class FormTest {
     }
 
     @BeforeEach
-    void OpenBrowser() {
+    void setUp() {
+        Configuration.headless = true;
         open("http://localhost:9999/");
     }
 
