@@ -1,60 +1,54 @@
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 
-import java.text.SimpleDateFormat;
 import java.time.Duration;
+
 import static com.codeborne.selenide.Selenide.*;
-import java.util.Calendar;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class FormTest {
 
-    static String dateOfVisit;
-
-    @BeforeAll
-    static void CalculateTheDate() {
-        SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
-        Calendar cal = Calendar.getInstance();
-        int days = 3;
-        cal.add(Calendar.DAY_OF_MONTH, days);
-        dateOfVisit = date.format(cal.getTime());
+    public String generateDate(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
+
+    String planningDate = generateDate(3);
 
     @BeforeEach
     void setUp() {
-        Configuration.headless = true;
         open("http://localhost:9999/");
     }
 
     @Test
     void shouldTestBePassed() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
         $("[class='button__text']").click();
-        $x("//div[contains(text(), 'Встреча успешно забронирована')]").should(Condition.appear, Duration.ofSeconds(15));
-        $x("//div[contains(@class,'notification_visible')]").shouldBe(Condition.visible);
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
     void shouldTestBePassed2() {
         $x("//span[@data-test-id='city']//input").setValue("Санкт-Петербург");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия-Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
         $("[class='button__text']").click();
-        $x("//div[contains(text(), 'Встреча успешно забронирована')]").should(Condition.appear, Duration.ofSeconds(15));
-        $x("//div[contains(@class,'notification_visible')]").shouldBe(Condition.visible);
+        $(".notification__content")
+                .shouldHave(Condition.text("Встреча успешно забронирована на " + planningDate), Duration.ofSeconds(15))
+                .shouldBe(Condition.visible);
     }
 
     @Test
@@ -70,8 +64,8 @@ public class FormTest {
     @Test
     void shouldTestInvalidCity() {
         $x("//span[@data-test-id='city']//input").setValue("Казан");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
@@ -82,8 +76,8 @@ public class FormTest {
     @Test
     void shouldTestEmptyCity() {
         $x("//span[@data-test-id='city']//input").setValue("");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
@@ -93,14 +87,10 @@ public class FormTest {
 
     @Test
     void shouldTestInvalidDate() {
-        SimpleDateFormat errorDate = new SimpleDateFormat("dd.MM.yyyy");
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, 2);
-        String invalidDateOfVisit = errorDate.format(cal.getTime());
-
+        String invalidPlanningDate = generateDate(2);
         $x("//span[@data-test-id='city']//input").setValue("Казань");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(invalidDateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(invalidPlanningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
@@ -111,7 +101,7 @@ public class FormTest {
     @Test
     void shouldTestEmptyDate() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
         $x("//span[@data-test-id='date']//input").setValue("");
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
@@ -123,8 +113,8 @@ public class FormTest {
     @Test
     void shouldTestInvalidNameAndSurname() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Name Surname");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
@@ -135,8 +125,8 @@ public class FormTest {
     @Test
     void shouldTestEmptyNameAndSurname() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
-        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL,"a",Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("");
         $("[name='phone']").setValue("+79991112233");
         $("[class='checkbox__box']").click();
@@ -148,7 +138,7 @@ public class FormTest {
     void shouldTestInvalidPhone() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
         $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("79991112233");
         $("[class='checkbox__box']").click();
@@ -160,7 +150,7 @@ public class FormTest {
     void shouldTestEmptyPhone() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
         $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("");
         $("[class='checkbox__box']").click();
@@ -172,7 +162,7 @@ public class FormTest {
     void shouldTestInvalidPhoneCountOfNumbersMoreThanNeeded() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
         $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+799911122333");
         $("[class='checkbox__box']").click();
@@ -184,7 +174,7 @@ public class FormTest {
     void shouldTestInvalidPhoneCountOfNumbersLessThanNeeded() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
         $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+7999111223");
         $("[class='checkbox__box']").click();
@@ -196,7 +186,7 @@ public class FormTest {
     void shouldTestUncheckedCheckbox() {
         $x("//span[@data-test-id='city']//input").setValue("Казань");
         $x("//span[@data-test-id='date']//input").sendKeys(Keys.chord(Keys.CONTROL, "a", Keys.BACK_SPACE));
-        $x("//span[@data-test-id='date']//input").setValue(dateOfVisit);
+        $x("//span[@data-test-id='date']//input").setValue(planningDate);
         $("[name='name']").setValue("Имя Фамилия");
         $("[name='phone']").setValue("+79991112233");
         $("[class='button__text']").click();
